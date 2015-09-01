@@ -172,7 +172,8 @@ window.CMB2 = (function(window, document, $, undefined){
 		var $metabox     = cmb.metabox();
 		cmb.formfield    = formfield;
 		var $formfield   = $id( cmb.formfield );
-		var previewSize  = $formfield.data( 'previewsize' );
+		var fieldData    = $formfield.data();
+		var previewSize  = fieldData.previewsize;
 		var formName     = $formfield.attr('name');
 		var uploadStatus = true;
 		var attachment   = true;
@@ -186,10 +187,11 @@ window.CMB2 = (function(window, document, $, undefined){
 		// Create the media frame.
 		cmb.file_frames[ cmb.formfield ] = wp.media({
 			title: $metabox.find('label[for=' + cmb.formfield + ']').text(),
+			library : fieldData.queryargs || {},
 			button: {
-				text: l10n.strings.upload_file
+				text: l10n.strings[ isList ? 'upload_files' : 'upload_file' ]
 			},
-			multiple: isList ? true : false
+			multiple: isList ? 'add' : false
 		});
 
 		cmb.mediaHandlers.list = function( selection, returnIt ) {
