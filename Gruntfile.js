@@ -8,7 +8,10 @@ module.exports = function(grunt) {
 		pkg: grunt.file.readJSON( 'package.json' ),
 
 		phpunit: {
-			classes: {}
+			classes: {},
+			options: {
+				excludeGroup: 'cmb2-ajax-embed',
+			}
 		},
 
 		githooks: {
@@ -36,8 +39,8 @@ module.exports = function(grunt) {
 					},
 					processPot: function( pot, options ) {
 						pot.headers['report-msgid-bugs-to'] = 'http://wordpress.org/support/plugin/cmb2';
-						pot.headers['last-translator'] = 'WebDevStudios contact@webdevstudios.com';
-						pot.headers['language-team'] = 'WebDevStudios contact@webdevstudios.com';
+						pot.headers['last-translator'] = 'CMB2 Team hello@cmb2.io';
+						pot.headers['language-team'] = 'CMB2 Team hello@cmb2.io';
 						var today = new Date();
 						pot.headers['po-revision-date'] = today.getFullYear() +'-'+ ( today.getMonth() + 1 ) +'-'+ today.getDate() +' '+ today.getUTCHours() +':'+ today.getUTCMinutes() +'+'+ today.getTimezoneOffset();
 						return pot;
@@ -85,24 +88,15 @@ module.exports = function(grunt) {
 					'__ngettext_noop:1,2,3d',
 					'_c:1,2d',
 					'_nc:1,2,4c,5d'
-					]
-				},
-				files: {
-					src: [
-						'**/*.php', // Include all files
-						'!node_modules/**', // Exclude node_modules/
-						],
-					expand: true
-				}
+				]
 			},
-
-		exec: {
-			txpull: { // Pull Transifex translation - grunt exec:txpull
-				cmd: 'tx pull -a  -f' // Change the percentage with --minimum-perc=yourvalue
-			},
-			txpush_s: { // Push pot to Transifex - grunt exec:txpush_s
-				cmd: 'tx push -s'
-			},
+			files: {
+				src: [
+					'**/*.php', // Include all files
+					'!node_modules/**', // Exclude node_modules/
+					],
+				expand: true
+			}
 		},
 
 		// concat: {
@@ -126,7 +120,7 @@ module.exports = function(grunt) {
 				files: [{
 					expand: false,
 					cwd: 'css/',
-					src: ['css/cmb2.css'],
+					src: ['css/cmb2.css','css/cmb2-display.css'],
 					dest: 'css/',
 				}]
 			}
@@ -140,7 +134,8 @@ module.exports = function(grunt) {
 				},
 				files: {
 				  'css/cmb2.css': 'css/sass/cmb2.scss',
-				  'css/cmb2-front.css': 'css/sass/cmb2-front.scss'
+				  'css/cmb2-front.css': 'css/sass/cmb2-front.scss',
+				  'css/cmb2-display.css': 'css/sass/cmb2-display.scss'
 				}
 			}
 		},
@@ -156,8 +151,38 @@ module.exports = function(grunt) {
 			}
 		},
 
+		usebanner: {
+			taskName: {
+				options: {
+					position: 'top',
+					banner: '/*!\n' +
+						' * <%= pkg.title %> - v<%= pkg.version %> - <%= grunt.template.today("yyyy-mm-dd") %>\n' +
+						' * <%= pkg.homepage %>\n' +
+						' * Copyright (c) <%= grunt.template.today("yyyy") %>\n' +
+						' * Licensed GPLv2+\n' +
+						' */\n',
+					linebreak: true
+				},
+				files: {
+					src: [
+						'css/cmb2.css',
+						'css/cmb2-front.css',
+						'css/cmb2-display.css',
+						'css/cmb2-rtl.css',
+						'css/cmb2-front-rtl.css',
+						'css/cmb2-display-rtl.css'
+					],
+				}
+			}
+		},
+
 		cssmin: {
 			options: {
+				banner: '/*! <%= pkg.title %> - v<%= pkg.version %> - <%= grunt.template.today("yyyy-mm-dd") %>' +
+					' | <%= pkg.homepage %>' +
+					' | Copyright (c) <%= grunt.template.today("yyyy") %> <%= pkg.author.name %>' +
+					' | Licensed <%= pkg.license %>' +
+					' */'
 				// banner: '/*! <%= pkg.title %> - v<%= pkg.version %> - <%= grunt.template.today("yyyy-mm-dd") %>\n' +
 				// 	' * <%= pkg.homepage %>\n' +
 				// 	' * Copyright (c) <%= grunt.template.today("yyyy") %>;' +
@@ -166,7 +191,14 @@ module.exports = function(grunt) {
 			},
 			minify: {
 				expand: true,
-				src: ['css/cmb2.css','css/cmb2-front.css'],
+				src: [
+					'css/cmb2.css',
+					'css/cmb2-front.css',
+					'css/cmb2-display.css',
+					'css/cmb2-rtl.css',
+					'css/cmb2-front-rtl.css',
+					'css/cmb2-display-rtl.css'
+				],
 				// dest: '',
 				ext: '.min.css'
 			}
@@ -174,7 +206,8 @@ module.exports = function(grunt) {
 
 		jshint: {
 			all: [
-				'js/cmb2.js'
+				'js/cmb2.js',
+				'js/cmb2-wysiwyg.js'
 			],
 			options: {
 				curly   : true,
@@ -198,9 +231,9 @@ module.exports = function(grunt) {
 
 		asciify: {
 			banner: {
-				text    : 'CMB!',
+				text    : 'CMB2',
 				options : {
-					font : 'isometric2',
+					font : 'univers',
 					log  : true
 				}
 			}
@@ -209,7 +242,7 @@ module.exports = function(grunt) {
 		uglify: {
 			all: {
 				files: {
-					'js/cmb2.min.js': ['js/cmb2.js']
+					'js/cmb2.min.js': ['js/cmb2.js', 'js/cmb2-wysiwyg.js']
 				},
 				options: {
 					// banner: '/*! <%= pkg.title %> - v<%= pkg.version %> - <%= grunt.template.today("yyyy-mm-dd") %>\n' +
@@ -225,7 +258,7 @@ module.exports = function(grunt) {
 		watch: {
 
 			css: {
-				files: ['css/sass/partials/*.scss'],
+				files: ['css/sass/**/*.scss'],
 				tasks: ['styles'],
 				options: {
 					spawn: false,
@@ -233,7 +266,7 @@ module.exports = function(grunt) {
 			},
 
 			scripts: {
-				files: ['js/cmb2.js'],
+				files: ['js/cmb2.js', 'js/cmb2-wysiwyg.js'],
 				tasks: ['js'],
 				options: {
 					debounceDelay: 500
@@ -270,21 +303,63 @@ module.exports = function(grunt) {
 						dest: '/'
 				} ]
 			}
-		}
+		},
+
+		cssjanus: {
+			i18n: {
+				options: {
+					swapLtrRtlInUrl: false
+				},
+				files: [
+					{ src: 'css/cmb2-display.css', dest: 'css/cmb2-display-rtl.css' },
+					{ src: 'css/cmb2-front.css', dest: 'css/cmb2-front-rtl.css' },
+					{ src: 'css/cmb2.css', dest: 'css/cmb2-rtl.css' }
+				]
+			}
+		},
+
+		exec: {
+			txpull: { // Pull Transifex translation - grunt exec:txpull
+				cmd: 'tx pull -a  -f' // Change the percentage with --minimum-perc=yourvalue
+			},
+			txpush_s: { // Push pot to Transifex - grunt exec:txpush_s
+				cmd: 'tx push -s'
+			},
+			apigen: {
+				cmd: [
+					'rm -r ~/Sites/wpengine/api',
+					'echo "Old API docs removed"',
+					'apigen generate --config apigen/apigen.neon --debug',
+					'echo "Docs regenerated"',
+					'php apigen/hook-docs.php'
+				].join( '&&' )
+			}
+		},
 
 	});
 
-	grunt.registerTask('styles', ['sass', 'csscomb', 'cmq', 'cssmin']);
-	grunt.registerTask('js', ['asciify', 'jshint', 'uglify']);
-	grunt.registerTask('tests', ['asciify', 'jshint', 'phpunit']);
-	grunt.registerTask('default', ['styles', 'js', 'tests']);
+	var asciify = ['asciify'];
+	var styles  = ['sass', 'csscomb', 'cmq', 'cssjanus', 'cssmin', 'usebanner'];
+	var hint    = ['jshint'];
+	var js      = ['jshint', 'uglify'];
+	var tests   = ['jshint', 'phpunit'];
+
+	grunt.registerTask( 'styles', asciify.concat( styles ) );
+	grunt.registerTask( 'css', asciify.concat( styles ) );
+	grunt.registerTask( 'hint', asciify.concat( hint ) );
+	grunt.registerTask( 'js', asciify.concat( js ) );
+	grunt.registerTask( 'tests', asciify.concat( tests ) );
+	grunt.registerTask( 'default', asciify.concat( styles, js, tests ) );
+
+	// apigen
+	grunt.registerTask( 'apigen', asciify.concat( ['exec:apigen'] ) );
 
 	// Checktextdomain and makepot task(s)
-	grunt.registerTask('build:i18n', ['checktextdomain', 'makepot', 'newer:potomo']);
+	grunt.registerTask( 'build:i18n', asciify.concat( ['checktextdomain', 'makepot', 'newer:potomo'] ) );
 
 	// Makepot and push it on Transifex task(s).
-	grunt.registerTask('tx-push', ['makepot', 'exec:txpush_s']);
+	grunt.registerTask( 'tx-push', asciify.concat( ['makepot', 'exec:txpush_s'] ) );
 
 	// Pull from Transifex and create .mo task(s).
-	grunt.registerTask('tx-pull', ['exec:txpull', 'newer:potomo']);
+	grunt.registerTask( 'tx-pull', asciify.concat( ['exec:txpull', 'newer:potomo'] ) );
 };
